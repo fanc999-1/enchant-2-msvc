@@ -60,6 +60,10 @@ vs$(VSVER)\$(CFG)\$(PLAT)\providers\enchant_hunspell.obj: ..\providers\enchant_h
 	@if not exist $(@D)\ md $(@D)
 	$(CXX) /EHsc $(ENCHANT_HUNSPELL_INCLUDES) $(BASE_DEFINES) /Fo$(@D)\ /Fd$(@D)\ /c $**
 
+vs$(VSVER)\$(CFG)\$(PLAT)\providers\enchant_nuspell.obj: ..\providers\enchant_nuspell.cpp
+	@if not exist $(@D)\ md $(@D)
+	$(CXX) /EHsc /std:c++17 $(ENCHANT_NUSPELL_INCLUDES) $(BASE_DEFINES) /Fo$(@D)\ /Fd$(@D)\ /c $**
+
 # Inference rules for building the test programs
 # Used for programs with a single source file.
 # Format is as follows
@@ -88,6 +92,10 @@ $(ENCHANT_DLL): $(libenchant_objs) $(LIBGNU_LIB)
 
 $(ENCHANT_HUNSPELL_DLL): $(ENCHANT_LIB) $(LIBGNU_LIB) vs$(VSVER)\$(CFG)\$(PLAT)\providers\enchant_hunspell.obj
 	link /DLL $(LDFLAGS) -out:$@ $** /libpath:$(HUNSPELL_LIBDIR) hunspell.lib /libpath:$(GLIB_LIBDIR) $(ENCHANT_GLIB_DEPS) /export:init_enchant_provider
+	@-if exist $@.manifest mt /manifest $@.manifest /outputresource:$@;2
+
+$(ENCHANT_NUSPELL_DLL): $(ENCHANT_LIB) $(LIBGNU_LIB) vs$(VSVER)\$(CFG)\$(PLAT)\providers\enchant_nuspell.obj
+	link /DLL $(LDFLAGS) -out:$@ $** /libpath:$(HUNSPELL_LIBDIR) nuspell.lib /libpath:$(GLIB_LIBDIR) $(ENCHANT_GLIB_DEPS) /export:init_enchant_provider
 	@-if exist $@.manifest mt /manifest $@.manifest /outputresource:$@;2
 
 # Rules for linking Executables
