@@ -121,16 +121,31 @@ $(ENCHANT_EXE) $(ENCHANT_LSMOD_EXE):
 # $(srcfile)
 # <<
 
-install: all
-	@-for %d in (bin lib\enchant-$(ENCHANT_MAJOR_VERSION) include\enchant-$(ENCHANT_MAJOR_VERSION) share\enchant-$(ENCHANT_MAJOR_VERSION) providers-pdb) do @mkdir $(PREFIX)\%d
+vs$(VSVER)\$(CFG)\$(PLAT)\enchant-$(ENCHANT_MAJOR_VERSION).pc: $(ENCHANT_LIB)
+	@echo prefix=$$^{pcfiledir^}/../..>$@
+	@echo exec_prefix=$$^{prefix^}>>$@
+	@echo libdir=$$^{prefix^}/lib>>$@
+	@echo includedir=$$^{prefix^}/include>>$@
+	@echo.>>$@
+	@echo Name: libenchant>>$@
+	@echo Description: A spell checking library>>$@
+	@echo Version: $(ENCHANT_VERSION)>>$@
+	@echo Requires.private: glib-2.0 gmodule-no-export-2.0>>$@
+	@echo Libs: -L$$^{libdir^} -lenchant-$(ENCHANT_MAJOR_VERSION)>>$@
+	@echo Cflags: -I$$^{includedir^}/enchant-$(ENCHANT_MAJOR_VERSION)>>$@
+
+install: all vs$(VSVER)\$(CFG)\$(PLAT)\enchant-$(ENCHANT_MAJOR_VERSION).pc
+	@-for %d in (bin lib\enchant-$(ENCHANT_MAJOR_VERSION) lib\pkgconfig include\enchant-$(ENCHANT_MAJOR_VERSION) share\enchant-$(ENCHANT_MAJOR_VERSION) providers-pdb) do @mkdir $(PREFIX)\%d
 	@for %f in ($(ENCHANT_DLL) $(ENCHANT_TOOLS)) do @((if exist %~pnf.pdb copy %~pnf.pdb $(PREFIX)\bin) & copy /b %f $(PREFIX)\bin)
 	@for %f in ($(ENCHANT_LIB)) do @copy /b %f $(PREFIX)\lib
 	@for %f in ($(ENCHANT_PROVIDERS)) do @copy /b %f $(PREFIX)\lib\enchant-$(ENCHANT_MAJOR_VERSION)
 	@for %f in ($(ENCHANT_PROVIDERS)) do @if exist %~pnf.pdb copy /b %~pnf.pdb $(PREFIX)\providers-pdb
 	@for %f in (..\msvc\lib\enchant.h ..\lib\enchant++.h) do @copy "%f" $(PREFIX)\include\enchant-$(ENCHANT_MAJOR_VERSION)
 	@copy ..\lib\enchant.ordering $(PREFIX)\share\enchant-$(ENCHANT_MAJOR_VERSION)
+	@copy vs$(VSVER)\$(CFG)\$(PLAT)\enchant-$(ENCHANT_MAJOR_VERSION).pc $(PREFIX)\lib\pkgconfig
 
 clean:
+	@-del /f /q vs$(VSVER)\$(CFG)\$(PLAT)\enchant-$(ENCHANT_MAJOR_VERSION).pc
 	@-del /f /q vs$(VSVER)\$(CFG)\$(PLAT)\*.lib
 	@-del /f /q vs$(VSVER)\$(CFG)\$(PLAT)\*.exp
 	@-del /f /q vs$(VSVER)\$(CFG)\$(PLAT)\*.pdb
